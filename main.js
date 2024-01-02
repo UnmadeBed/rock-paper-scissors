@@ -1,9 +1,40 @@
 const buttons = document.querySelectorAll('button');
+const btnContainer = document.querySelector('.btn-container');
+const results = document.querySelector('.results');
+const scoreDisplay = document.querySelector('.score');
+const displaySelections = document.createElement('p');
+
+let playerScore = 0;
+let compScore = 0;
+
+const updateScore = () => {
+	scoreDisplay.textContent = `Player: ${playerScore} | CPU: ${compScore}`;
+};
+
 buttons.forEach((button) => {
 	button.addEventListener('click', () => {
-		console.log(button.id);
-		// I want to trigger the game to start from here, so I think i should call the game function, passing the clicked button into it, which then passes the clicked button into the playRound function. Is this right?
-		game(button.id);
+		const btnPressed = button.id;
+		const roundResult = playRound(btnPressed);
+
+		if (roundResult === 'win') {
+			playerScore++;
+		} else if (roundResult === 'lose') {
+			compScore++;
+		}
+
+		updateScore();
+
+		if (compScore === 5) {
+			btnContainer.textContent = 'Computer wins!';
+			results.textContent = '';
+			scoreDisplay.textContent = `Final Scores - 
+			Player: ${playerScore} | CPU: ${compScore}`;
+		} else if (playerScore === 5) {
+			btnContainer.textContent = 'Player wins!';
+			results.textContent = '';
+			scoreDisplay.textContent = `Final Scores - 
+			Player: ${playerScore} | CPU: ${compScore}`;
+		}
 	});
 });
 
@@ -14,47 +45,27 @@ getComputerChoice = () => {
 	return computerChoice;
 };
 
-playRound = (button) => {
-	const playerSelection = button;
+playRound = (btnPressed) => {
+	const playerSelection = btnPressed;
 	const computerSelection = getComputerChoice().toLowerCase();
 
+	console.log(`Player: ${playerSelection}, CPU: ${computerSelection}`);
+
+	if (results.hasChildNodes()) {
+		results.removeChild(results.firstChild);
+	}
+	displaySelections.textContent = `Player: ${playerSelection}, CPU: ${computerSelection}`;
+	results.appendChild(displaySelections);
+
 	if (computerSelection === playerSelection) {
-		console.log(
-			`Play again, you both chose the same hand (${playerSelection})`
-		);
-		playRound(button);
+		return `draw`;
 	} else if (
 		(computerSelection === 'rock' && playerSelection === 'scissors') ||
 		(computerSelection === 'scissors' && playerSelection === 'paper') ||
 		(computerSelection === 'paper' && playerSelection === 'rock')
 	) {
-		return `You lose!`;
+		return `lose`;
 	} else {
-		return `You win!`;
+		return `win`;
 	}
 };
-
-game = (button) => {
-	let compScore = 0;
-	let playerScore = 0;
-
-	while (compScore < 5 && playerScore < 5) {
-		let result = playRound(button);
-		if (result === `You lose!`) {
-			compScore += 1;
-			console.log(`CPU: ${compScore} Player: ${playerScore}`);
-		} else {
-			console.log(`CPU: ${compScore} Player: ${playerScore}`);
-
-			playerScore += 1;
-		}
-	}
-
-	if (compScore == 5) {
-		console.log('Computer wins!');
-	} else if (playerScore == 5) {
-		console.log('Player wins!');
-	}
-};
-
-// game();
